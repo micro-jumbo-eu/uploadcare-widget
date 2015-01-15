@@ -20,6 +20,7 @@ namespace 'uploadcare.widget.tabs', (ns) ->
       @dialogApi.fileColl.onAdd.add @__setFile
 
       @widget = null
+      @isCropStarted = false
 
     __setFile: (@file) =>
       ifCur = (fn) =>
@@ -57,6 +58,7 @@ namespace 'uploadcare.widget.tabs', (ns) ->
       done = @element('done')
       imgSize = [info.originalImageInfo.width,
                  info.originalImageInfo.height]
+      @isCropStarted = false
 
       imgLoader = utils.imageLoader(img.attr('src'))
         .done =>
@@ -78,17 +80,27 @@ namespace 'uploadcare.widget.tabs', (ns) ->
             info.cdnUrl = "#{info.originalUrl}#{opts.modifiers or ''}"
             info.crop = opts.crop
             info
+        @isCropStarted = true
 
       if @settings.crop
         @element('title').text t('dialog.tabs.preview.crop.title')
-        done.addClass('uploadcare-disabled-el')
         done.text t('dialog.tabs.preview.crop.done')
 
-        @populateCropSizes()
+        if info.cdnUrlModifiers
+            done.addClass('uploadcare-disabled-el')
+            @populateCropSizes()
+            imgLoader.done ->
+              utils.defer startCrop
+        else
+            @element('image')
+              .on 'mousedown', (e) =>
+                if @isCropStarted
+                    return
 
-        imgLoader.done ->
-          utils.defer startCrop
-
+                done.addClass('uploadcare-disabled-el')
+                @populateCropSizes()
+                imgLoader.done ->
+                  utils.defer startCrop
 
     populateCropSizes: ->
       if @settings.crop.length <= 1
