@@ -12,7 +12,7 @@
 # = require uploadcare/widget/submit-guard
 # = require uploadcare/widget/accessibility
 
-uploadcare.version = '<%= UploadcareWidget::VERSION %>'
+uploadcare.version = '0.0.1'
 
 {expose} = uploadcare
 
